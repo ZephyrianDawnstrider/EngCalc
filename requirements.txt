@@ -1,6 +1,7 @@
-fastapi
-uvicorn[standard]
-pytest
-httpx
-sqlalchemy
-psycopg2-binary
+fastapi==0.142.2
+uvicorn[standard]==0.54.0
+pydantic==2.13.5
+sqlalchemy==2.1.3
+psycopg2-binary==2.9.13
+pytest==8.4.2
+httpx==0.28.1

@@ -1,720 +1,359 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EngCalc - Bolt Shear Margin</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f3f6f4">
+  <title>EngCalc | Bolt shear yield estimate</title>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: system-ui, sans-serif;
-      background: #0f0f0f;
-      color: #e0e0e0;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-    }
-    .card {
-      background: #1a1a1a;
-      border: 1px solid #2a2a2a;
-      border-radius: 8px;
-      padding: 2rem;
-      width: 100%;
-      max-width: 760px;
-    }
-    h1 { font-size: 20px; margin-bottom: 4px; }
-    h2 { font-size: 13px; color: #d8d8d8; margin: 18px 0 8px; }
-    .sub { font-size: 12px; color: #888; margin-bottom: 1.5rem; }
-    .field { margin-top: 12px; }
-    .label-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      margin-bottom: 4px;
-    }
-    label { font-size: 12px; color: #aaa; display: block; }
-    select, input {
-      width: 100%;
-      padding: 8px 10px;
-      background: #111;
-      border: 1px solid #2a2a2a;
-      border-radius: 6px;
-      color: #e0e0e0;
-      font-size: 14px;
-    }
-    select:disabled, input:disabled {
-      color: #777;
-      border-color: #333;
-      background: #151515;
-    }
-    button {
-      margin-top: 1.5rem;
-      width: 100%;
-      padding: 10px;
-      background: #1d9e75;
-      border: none;
-      border-radius: 6px;
-      color: white;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-    }
-    button:hover { background: #0f7a5a; }
-    .help-btn {
-      width: 22px;
-      height: 22px;
-      margin: 0;
-      padding: 0;
-      border-radius: 50%;
-      border: 1px solid #444;
-      background: #151515;
-      color: #bbb;
-      font-size: 12px;
-      line-height: 1;
-    }
-    .tooltip-wrap { position: relative; flex: 0 0 auto; }
-    .tooltip {
-      position: absolute;
-      right: 0;
-      top: 28px;
-      z-index: 5;
-      display: none;
-      width: min(320px, 82vw);
-      padding: 10px 12px;
-      background: #111;
-      border: 1px solid #333;
-      border-radius: 6px;
-      color: #ddd;
-      font-size: 12px;
-      line-height: 1.4;
-      box-shadow: 0 14px 32px rgba(0, 0, 0, 0.4);
-    }
-    .tooltip.open { display: block; }
-    .head-grid, .joint-grid, .plane-toggle {
-      display: grid;
-      gap: 8px;
-      margin-top: 6px;
-    }
-    .head-grid { grid-template-columns: repeat(5, 1fr); }
-    .joint-grid { grid-template-columns: repeat(2, 1fr); }
-    .plane-toggle { grid-template-columns: repeat(2, 1fr); }
-    .option-card, .toggle-card {
-      border: 1px solid #2a2a2a;
-      background: #111;
-      color: #d8d8d8;
-      border-radius: 6px;
-      padding: 10px 8px;
-      cursor: pointer;
-      min-height: 76px;
-    }
-    .option-card input, .toggle-card input { display: none; }
-    .option-card.active, .toggle-card.active {
-      border-color: #1d9e75;
-      box-shadow: inset 0 0 0 1px #1d9e75;
-    }
-    .icon-wrap {
-      display: grid;
-      place-items: center;
-      height: 30px;
-      margin-bottom: 6px;
-    }
-    .option-title { display: block; font-size: 12px; font-weight: 600; }
-    .option-sub { display: block; color: #888; font-size: 10px; line-height: 1.25; margin-top: 4px; }
-    .note {
-      color: #888;
-      font-size: 11px;
-      line-height: 1.45;
-      margin-top: 6px;
-    }
-    .warning-note {
-      display: none;
-      margin-top: 8px;
-      padding: 10px;
-      border: 1px solid #6f4f12;
-      background: #1d170d;
-      color: #f2d38b;
-      border-radius: 6px;
-      font-size: 12px;
-      line-height: 1.45;
-    }
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      padding: 2px 7px;
-      border-radius: 999px;
-      background: #333;
-      color: #bbb;
-      font-size: 10px;
-      font-weight: 600;
-      margin-left: 6px;
-    }
-    .viz {
-      margin-top: 10px;
-      padding: 12px;
-      border: 1px solid #2a2a2a;
-      border-radius: 6px;
-      background: #121212;
-      overflow: hidden;
-    }
-    svg { display: block; width: 100%; max-width: 100%; height: auto; }
-    .compare-row {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-      margin-top: 8px;
-      font-size: 10px;
-      color: #aaa;
-      text-align: center;
-    }
-    .compare-item {
-      border: 1px solid #282828;
-      border-radius: 6px;
-      padding: 6px 4px;
-      background: #101010;
-    }
-    .compare-item.active {
-      border-color: #1d9e75;
-      color: #e0e0e0;
-    }
-    .ff-labels {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-      margin-top: 8px;
-      font-size: 10px;
-      color: #888;
-    }
-    .ff-labels strong { display: block; color: #bbb; margin-bottom: 3px; }
-    .results {
-      margin-top: 1.5rem;
-      border-top: 1px solid #2a2a2a;
-      padding-top: 1rem;
-      display: none;
-    }
-    .row {
-      display: flex;
-      justify-content: space-between;
-      gap: 16px;
-      padding: 6px 0;
-      border-bottom: 1px solid #1f1f1f;
-      font-size: 13px;
-    }
-    .row span:last-child { font-weight: 500; text-align: right; }
-    .PASS { color: #1d9e75; }
-    .MARGINAL { color: #f59e0b; }
-    .FAIL { color: #ef4444; }
-    .interpretation {
-      display: none;
-      margin-top: 1rem;
-      padding: 12px;
-      border: 1px solid #333;
-      border-radius: 6px;
-      background: #141414;
-      font-size: 13px;
-      line-height: 1.45;
-    }
-    .interpretation.PASS { border-color: #1d9e75; color: #dcefe8; }
-    .interpretation.MARGINAL { border-color: #f59e0b; color: #f4ead7; }
-    .interpretation.FAIL { border-color: #ef4444; color: #f5dddd; }
-    .ref { font-size: 10px; color: #777; margin-top: 10px; }
-    .error { color: #ef4444; font-size: 13px; margin-top: 1rem; display: none; }
-    .hidden-select {
-      position: absolute;
-      opacity: 0;
-      pointer-events: none;
-      width: 1px;
-      height: 1px;
-    }
-    @media (max-width: 700px) {
-      body { align-items: flex-start; padding: 14px; }
-      .card { padding: 1.25rem; }
-      .head-grid, .joint-grid, .plane-toggle { grid-template-columns: 1fr; }
-      .option-card, .toggle-card { min-height: auto; }
-      .row { flex-direction: column; gap: 2px; }
-      .row span:last-child { text-align: left; }
-      .compare-row, .ff-labels { grid-template-columns: 1fr 1fr; }
+    :root { color-scheme: light; --ink:#172c2b; --muted:#637573; --line:#d7e1dc; --paper:#fff; --wash:#f3f6f4; --teal:#087e75; --teal-dark:#075e58; --mint:#d9f0e8; --amber:#8c5600; --amber-bg:#fff3d8; --red:#9a3939; --red-bg:#fbe9e6; --shadow:0 20px 60px rgba(23,44,43,.08); }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--wash); color:var(--ink); font:16px/1.5 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif; }
+    a { color:var(--teal-dark); text-underline-offset:3px; }
+    .shell { width:min(1120px,calc(100% - 36px)); margin:0 auto; padding:28px 0 56px; }
+    .topline { display:flex; align-items:center; justify-content:space-between; gap:20px; margin-bottom:28px; }
+    .brand { display:flex; align-items:center; gap:12px; font-weight:750; letter-spacing:-.02em; }
+    .mark { width:36px; height:36px; display:grid; place-items:center; border-radius:11px; background:var(--ink); color:#fff; font-size:14px; }
+    .version { color:var(--muted); font-size:13px; }
+    .hero { max-width:790px; margin:0 auto 26px; text-align:center; }
+    .eyebrow { margin:0 0 8px; color:var(--teal-dark); font-size:12px; font-weight:750; letter-spacing:.13em; text-transform:uppercase; }
+    h1 { margin:0; font-size:clamp(30px,5vw,48px); line-height:1.08; letter-spacing:-.045em; }
+    .intro { max-width:700px; margin:14px auto 0; color:var(--muted); font-size:17px; }
+    .notice { display:flex; gap:12px; align-items:flex-start; margin:22px auto 0; padding:13px 16px; max-width:830px; border:1px solid #ead39c; border-radius:12px; background:var(--amber-bg); color:#574117; text-align:left; font-size:14px; }
+    .notice strong { display:block; margin-bottom:2px; }
+    .notice-icon { flex:none; font-size:18px; }
+    .layout { display:grid; grid-template-columns:minmax(0, .95fr) minmax(0,1.05fr); gap:18px; align-items:start; }
+    .panel { background:var(--paper); border:1px solid var(--line); border-radius:18px; box-shadow:var(--shadow); }
+    .form-panel { padding:24px; }
+    .panel-head { margin-bottom:20px; }
+    h2 { margin:0; font-size:20px; letter-spacing:-.025em; }
+    .panel-copy { margin:5px 0 0; color:var(--muted); font-size:14px; }
+    .fields { display:grid; grid-template-columns:1fr 1fr; gap:15px 14px; }
+    .field { min-width:0; }
+    .field.wide { grid-column:1/-1; }
+    label { display:block; margin-bottom:6px; font-size:13px; font-weight:700; }
+    .unit { color:var(--muted); font-weight:500; }
+    input,select { width:100%; min-height:46px; border:1px solid #cbd7d2; border-radius:9px; padding:10px 12px; background:#fff; color:var(--ink); font:inherit; font-size:15px; }
+    input:focus,select:focus,button:focus-visible,a:focus-visible { outline:3px solid #74c9bd; outline-offset:2px; }
+    .hint { margin:5px 0 0; color:var(--muted); font-size:12px; }
+    .actions { display:flex; flex-wrap:wrap; gap:9px; margin-top:20px; }
+    button { min-height:42px; border:1px solid transparent; border-radius:9px; padding:9px 14px; font:inherit; font-size:14px; font-weight:700; cursor:pointer; }
+    button:disabled { cursor:not-allowed; opacity:.5; }
+    .primary { flex:1 1 180px; background:var(--teal); color:#fff; }
+    .primary:hover:not(:disabled) { background:var(--teal-dark); }
+    .secondary { background:#fff; border-color:var(--line); color:var(--ink); }
+    .secondary:hover:not(:disabled) { background:#f4f8f5; }
+    .message { min-height:24px; margin:10px 0 0; color:var(--red); font-size:13px; }
+    .result-panel { min-height:560px; padding:24px; }
+    .empty { display:grid; min-height:490px; place-content:center; padding:24px; text-align:center; }
+    .empty-mark { width:58px; height:58px; display:grid; place-items:center; margin:0 auto 15px; border-radius:18px; background:var(--mint); color:var(--teal-dark); font-size:25px; }
+    .empty h2 { font-size:19px; }
+    .empty p { max-width:310px; margin:7px auto 0; color:var(--muted); font-size:14px; }
+    .result { display:none; }
+    .result-top { display:flex; align-items:flex-start; justify-content:space-between; gap:14px; padding-bottom:17px; border-bottom:1px solid var(--line); }
+    .result-top p { margin:5px 0 0; color:var(--muted); font-size:13px; overflow-wrap:anywhere; }
+    .state { flex:none; display:inline-flex; align-items:center; min-height:28px; padding:4px 10px; border-radius:999px; background:var(--mint); color:var(--teal-dark); font-size:12px; font-weight:750; }
+    .state.at { background:var(--amber-bg); color:var(--amber); }
+    .state.above { background:var(--red-bg); color:var(--red); }
+    .headline-metric { display:grid; grid-template-columns:1fr 1fr; gap:12px; padding:18px 0; }
+    .metric { padding:13px; border:1px solid var(--line); border-radius:11px; background:#fbfcfb; }
+    .metric-label { display:block; color:var(--muted); font-size:12px; }
+    .metric-value { display:block; margin-top:4px; font-size:clamp(20px,3vw,27px); font-weight:750; letter-spacing:-.035em; overflow-wrap:anywhere; }
+    .metric-value small { color:var(--muted); font-size:13px; font-weight:600; letter-spacing:0; }
+    .details { margin:0; }
+    .detail-row { display:flex; justify-content:space-between; gap:16px; padding:9px 0; border-bottom:1px solid #edf1ef; font-size:13px; }
+    .detail-row dt { color:var(--muted); }
+    .detail-row dd { margin:0; text-align:right; font-weight:650; font-variant-numeric:tabular-nums; overflow-wrap:anywhere; }
+    .report-inputs { margin:14px 0; padding:12px 14px; border:1px solid var(--line); border-radius:10px; background:#fbfcfb; font-size:12px; }
+    .report-inputs strong { display:block; margin-bottom:5px; }
+    .report-inputs p { margin:3px 0; }
+    .formula { margin-top:17px; padding:13px 14px; border-radius:10px; background:#eff6f3; color:#244541; font-size:13px; }
+    .formula code { display:block; margin-top:6px; white-space:normal; font-size:12px; }
+    details { margin-top:14px; border-top:1px solid var(--line); padding-top:12px; }
+    summary { cursor:pointer; font-size:13px; font-weight:700; }
+    details ul { margin:9px 0 0; padding-left:19px; color:var(--muted); font-size:12px; }
+    details li+li { margin-top:5px; }
+    .source { margin:15px 0 0; color:var(--muted); font-size:12px; }
+    .result-actions { display:flex; gap:8px; margin-top:17px; }
+    .result-actions button { flex:1; }
+    .footer { margin:22px auto 0; max-width:900px; color:var(--muted); text-align:center; font-size:12px; }
+    .footer p { margin:5px 0; }
+    .stale { display:none; margin:12px 0 0; color:var(--amber); font-size:12px; }
+    .loading { opacity:.7; pointer-events:none; }
+    @media (max-width:850px) { .layout { grid-template-columns:1fr; } .result-panel { min-height:0; } .empty { min-height:300px; } }
+    @media (max-width:520px) { .shell { width:min(100% - 22px,1120px); padding-top:16px; } .topline { margin-bottom:20px; } .form-panel,.result-panel { padding:18px; border-radius:14px; } .fields { grid-template-columns:1fr; } .field.wide { grid-column:auto; } .headline-metric { gap:8px; } .metric { padding:10px; } .result-top { flex-direction:column; } .state { order:-1; } .detail-row { gap:10px; } }
+    @media print {
+      body { background:#fff; color:#111; font-size:11pt; }
+      .shell { width:100%; padding:0; }
+      .topline,.hero,.form-panel,.footer,.result-actions,.stale { display:none !important; }
+      .layout { display:block; }
+      .result-panel { min-height:0; padding:0; border:0; box-shadow:none; }
+      .result { display:block !important; }
+      .state,.metric,.formula { print-color-adjust:exact; -webkit-print-color-adjust:exact; }
+      details { break-inside:avoid; }
+      details ul { display:block; }
+      details:not([open])>ul { display:block; }
+      a { color:#111; }
     }
   </style>
 </head>
 <body>
-<div class="card">
-  <h1>EngCalc</h1>
-  <p class="sub">Bolt shear margin - NASA-TM-2012-217454 Section 3.1</p>
+  <main class="shell">
+    <header class="topline">
+      <div class="brand"><span class="mark" aria-hidden="true">E</span><span>EngCalc</span></div>
+      <span class="version">Calculator v1.0.0</span>
+    </header>
 
-  <div class="field">
-    <div class="label-row">
-      <label>Bolt head type</label>
-    </div>
-    <div class="head-grid" aria-label="Bolt head type">
-      <label class="option-card active">
-        <input type="radio" name="head-type" value="hex" checked>
-        <span class="icon-wrap"><svg viewBox="0 0 48 30" aria-hidden="true"><polygon points="15,3 33,3 44,15 33,27 15,27 4,15" fill="#2b2b2b" stroke="#aaa"/><circle cx="24" cy="15" r="5" fill="#111" stroke="#777"/></svg></span>
-        <span class="option-title">Hex head</span>
-        <span class="option-sub">Structural</span>
-      </label>
-      <label class="option-card">
-        <input type="radio" name="head-type" value="socket">
-        <span class="icon-wrap"><svg viewBox="0 0 48 30" aria-hidden="true"><rect x="9" y="4" width="30" height="22" rx="5" fill="#2b2b2b" stroke="#aaa"/><polygon points="18,15 21,10 27,10 30,15 27,20 21,20" fill="#111" stroke="#777"/></svg></span>
-        <span class="option-title">Socket cap</span>
-        <span class="option-sub">Allen key</span>
-      </label>
-      <label class="option-card">
-        <input type="radio" name="head-type" value="phillips">
-        <span class="icon-wrap"><svg viewBox="0 0 48 30" aria-hidden="true"><circle cx="24" cy="15" r="12" fill="#2b2b2b" stroke="#aaa"/><rect x="14" y="13" width="20" height="4" fill="#111"/><rect x="22" y="5" width="4" height="20" fill="#111"/></svg></span>
-        <span class="option-title">Phillips</span>
-        <span class="option-sub">Light duty</span>
-      </label>
-      <label class="option-card">
-        <input type="radio" name="head-type" value="torx">
-        <span class="icon-wrap"><svg viewBox="0 0 48 30" aria-hidden="true"><circle cx="24" cy="15" r="12" fill="#2b2b2b" stroke="#aaa"/><path d="M24 6 L27 12 L34 11 L29 16 L32 23 L24 20 L16 23 L19 16 L14 11 L21 12 Z" fill="#111" stroke="#777"/></svg></span>
-        <span class="option-title">Torx</span>
-        <span class="option-sub">High torque</span>
-      </label>
-      <label class="option-card">
-        <input type="radio" name="head-type" value="countersunk">
-        <span class="icon-wrap"><svg viewBox="0 0 48 30" aria-hidden="true"><path d="M8 6 H40 L30 24 H18 Z" fill="#2b2b2b" stroke="#aaa"/><polygon points="18,15 21,10 27,10 30,15 27,20 21,20" fill="#111" stroke="#777"/></svg></span>
-        <span class="option-title">Countersunk</span>
-        <span class="option-sub">Flush mount</span>
-      </label>
-    </div>
-    <p class="note">Head type affects installation torque but not shear strength. For shear calculations, only diameter and grade matter.</p>
-  </div>
-
-  <div class="field">
-    <div class="label-row">
-      <label for="joint-type">Joint type</label>
-    </div>
-    <div class="joint-grid" aria-label="Joint type">
-      <label class="option-card active">
-        <input type="radio" name="joint-type" value="through" checked>
-        <span class="option-title">Bolt + Nut</span>
-        <span class="option-sub">Through bolt</span>
-      </label>
-      <label class="option-card">
-        <input type="radio" name="joint-type" value="tapped-steel">
-        <span class="option-title">Tapped hole</span>
-        <span class="option-sub">Steel</span>
-      </label>
-      <label class="option-card">
-        <input type="radio" name="joint-type" value="tapped-aluminium">
-        <span class="option-title">Tapped hole</span>
-        <span class="option-sub">Aluminium</span>
-      </label>
-      <label class="option-card">
-        <input type="radio" name="joint-type" value="wood">
-        <span class="option-title">Wood screw</span>
-        <span class="option-sub">Self-tapping</span>
-      </label>
-    </div>
-    <p class="warning-note" id="wood-warning">Shear strength of wood screws depends on wood species and embedment. This calculator uses steel bolt grades. For wood connections use timber design codes.</p>
-  </div>
-
-  <div class="field">
-    <div class="label-row">
-      <label for="grade">Bolt grade</label>
-      <span class="tooltip-wrap">
-        <button type="button" class="help-btn" data-tip="grade-tip">?</button>
-        <span class="tooltip" id="grade-tip">The material strength rating. Higher number = stronger bolt. ISO 8.8 is standard construction, 10.9 and 12.9 are high-strength.</span>
-      </span>
-    </div>
-    <select id="grade">
-      <option value="ISO_8.8">ISO 8.8</option>
-      <option value="ISO_10.9">ISO 10.9</option>
-      <option value="ISO_12.9">ISO 12.9</option>
-      <option value="NAS_3">NAS 3</option>
-      <option value="A2_70">A2-70 (Stainless)</option>
-    </select>
-  </div>
-
-  <div class="field">
-    <div class="label-row">
-      <label for="diameter">Bolt diameter (mm)</label>
-      <span class="tooltip-wrap">
-        <button type="button" class="help-btn" data-tip="diameter-tip">?</button>
-        <span class="tooltip" id="diameter-tip">The shank diameter in mm, not the thread outer diameter. For M8 bolt, enter 8.</span>
-      </span>
-    </div>
-    <input type="number" id="diameter" value="8" min="1" max="100" step="0.5">
-    <div class="viz">
-      <svg id="diameter-viz" viewBox="0 0 560 170" role="img" aria-label="Bolt diameter visual comparison"></svg>
-      <div class="compare-row" id="diameter-compare"></div>
-      <p class="note">This is the SHANK diameter, not the thread outer diameter. For an M8 bolt, enter 8.</p>
-    </div>
-  </div>
-
-  <div class="field">
-    <div class="label-row">
-      <label for="shear">Applied shear force (N)</label>
-      <span class="tooltip-wrap">
-        <button type="button" class="help-btn" data-tip="shear-tip">?</button>
-        <span class="tooltip" id="shear-tip">The force trying to slide the bolt sideways, perpendicular to its axis. NOT the tightening force.</span>
-      </span>
-    </div>
-    <input type="number" id="shear" value="10000" min="1">
-  </div>
-
-  <div class="field">
-    <div class="label-row">
-      <label for="planes">Shear planes</label>
-      <span class="tooltip-wrap">
-        <button type="button" class="help-btn" data-tip="planes-tip">?</button>
-        <span class="tooltip" id="planes-tip">Single shear = bolt cuts in one place, like a hinge pin. Double shear = bolt supported both sides, cuts in two places. Double shear is roughly twice as strong.</span>
-      </span>
-    </div>
-    <select id="planes" class="hidden-select">
-      <option value="1">Single shear</option>
-      <option value="2">Double shear</option>
-    </select>
-    <div class="plane-toggle">
-      <label class="toggle-card active">
-        <input type="radio" name="plane-toggle" value="1" checked>
-        <span class="option-title">Single shear</span>
-        <span class="option-sub">One cut through the bolt</span>
-      </label>
-      <label class="toggle-card">
-        <input type="radio" name="plane-toggle" value="2">
-        <span class="option-title">Double shear</span>
-        <span class="option-sub">Two cuts through the bolt</span>
-      </label>
-    </div>
-    <div class="viz">
-      <svg id="planes-viz" viewBox="0 0 560 230" role="img" aria-label="Shear planes diagram"></svg>
-    </div>
-  </div>
-
-  <div class="field">
-    <div class="label-row">
-      <label for="ff">Fitting factor</label>
-      <span class="tooltip-wrap">
-        <button type="button" class="help-btn" data-tip="ff-tip">?</button>
-        <span class="tooltip" id="ff-tip">A safety multiplier on the applied load. Use 1.0 for well-defined loads, 1.15 for typical aerospace joints, 1.5 for uncertain load paths.</span>
-      </span>
-    </div>
-    <input type="number" id="ff" value="1.0" min="1.0" max="2.0" step="0.05">
-    <div class="viz">
-      <svg id="ff-viz" viewBox="0 0 560 90" role="img" aria-label="Fitting factor visual guide"></svg>
-      <div class="ff-labels">
-        <span><strong>1.0</strong>Well-defined load</span>
-        <span><strong>1.15</strong>Typical aerospace</span>
-        <span><strong>1.5</strong>Uncertain load path</span>
-        <span><strong>2.0</strong>Shock loads</span>
+    <section class="hero" aria-labelledby="page-title">
+      <p class="eyebrow">Learning model · Bolt shear</p>
+      <h1 id="page-title">Estimate bolt-shank shear yield</h1>
+      <p class="intro">Explore a simple pure-shear model using a tensile yield value you provide. Every result includes the inputs, units, equation, assumptions, and model version.</p>
+      <div class="notice" role="note">
+        <span class="notice-icon" aria-hidden="true">ⓘ</span>
+        <div><strong>Educational estimate only</strong>This is not a design allowable, safety certification, or approval. It excludes several failure modes; verify the actual material and connection with an appropriately qualified engineer.</div>
       </div>
-      <p class="note">This multiplies your applied load before calculating. Higher factor = more conservative = safer design.</p>
+    </section>
+
+    <div class="layout">
+      <section class="panel form-panel" aria-labelledby="inputs-title">
+        <div class="panel-head">
+          <h2 id="inputs-title">Calculation inputs</h2>
+          <p class="panel-copy">Enter nominal tensile yield strength from a source you have verified for the material and condition.</p>
+        </div>
+        <form id="calc-form" novalidate>
+          <div class="fields">
+            <div class="field wide">
+              <label for="fy">Tensile yield strength <span class="unit">(MPa)</span></label>
+              <input id="fy" name="tensile_yield_strength_MPa" type="number" inputmode="decimal" min="0" step="any" value="640" required>
+              <p class="hint">User supplied. This tool does not identify or verify a bolt grade.</p>
+            </div>
+            <div class="field">
+              <label for="diameter">Unthreaded shank diameter <span class="unit">(mm)</span></label>
+              <input id="diameter" name="diameter_mm" type="number" inputmode="decimal" min="0" step="any" value="8" required>
+              <p class="hint">Use the diameter at the shear plane.</p>
+            </div>
+            <div class="field">
+              <label for="load">Applied shear load <span class="unit">(N)</span></label>
+              <input id="load" name="applied_shear_N" type="number" inputmode="decimal" min="0" step="any" value="10000" required>
+              <p class="hint">Total applied load before the selected factor.</p>
+            </div>
+            <div class="field">
+              <label for="planes">Shear planes <span class="unit">(count)</span></label>
+              <select id="planes" name="shear_planes">
+                <option value="1" selected>1 · single shear</option>
+                <option value="2">2 · double shear</option>
+              </select>
+              <p class="hint">The load is assumed to divide equally between planes.</p>
+            </div>
+            <div class="field">
+              <label for="factor">Load factor <span class="unit">(dimensionless)</span></label>
+              <input id="factor" name="fitting_factor" type="number" inputmode="decimal" min="1" step="any" value="1" required>
+              <p class="hint">User selected; multiplies the applied load. Minimum 1.0.</p>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="primary" id="calculate" type="submit">Calculate estimate</button>
+            <button class="secondary" id="example" type="button">Run example</button>
+            <button class="secondary" id="reset" type="button">Reset</button>
+          </div>
+          <p id="message" class="message" role="alert" aria-live="polite"></p>
+        </form>
+      </section>
+
+      <section class="panel result-panel" aria-labelledby="result-title" aria-live="polite">
+        <div class="empty" id="empty-state">
+          <span class="empty-mark" aria-hidden="true">↗</span>
+          <h2 id="result-title">Your report will appear here</h2>
+          <p>Run the example or enter your own values to see the model calculation.</p>
+        </div>
+        <article class="result" id="result" aria-labelledby="report-heading">
+          <div class="result-top">
+            <div><h2 id="report-heading">Calculation report</h2><p id="report-meta"></p></div>
+            <span class="state" id="result-status"></span>
+          </div>
+          <p class="stale" id="stale-note">Inputs changed. Recalculate to create a report for the current values.</p>
+          <div class="report-inputs" id="report-inputs"></div>
+          <div class="headline-metric">
+            <div class="metric"><span class="metric-label">Model margin <span class="unit">(capacity / demand - 1)</span></span><strong class="metric-value" id="margin-value"></strong></div>
+            <div class="metric"><span class="metric-label">Nominal yield capacity <span class="unit">(N)</span></span><strong class="metric-value" id="capacity-value"></strong></div>
+          </div>
+          <dl class="details">
+            <div class="detail-row"><dt>Provided tensile yield strength</dt><dd id="fy-result"></dd></div>
+            <div class="detail-row"><dt>Von Mises pure-shear yield</dt><dd id="tau-result"></dd></div>
+            <div class="detail-row"><dt>Full circular shank area</dt><dd id="area-result"></dd></div>
+            <div class="detail-row"><dt>Capacity per shear plane</dt><dd id="plane-capacity-result"></dd></div>
+            <div class="detail-row"><dt>Factored total applied load</dt><dd id="demand-result"></dd></div>
+            <div class="detail-row"><dt>Factored load per plane</dt><dd id="plane-load-result"></dd></div>
+          </dl>
+          <div class="formula"><strong>Model equations</strong><code>τy = Fy / √3 · A = πd² / 4 · C = τy × A × n · D = V × FF · MS = C / D - 1</code></div>
+          <details open>
+            <summary>Assumptions and limitations</summary>
+            <ul id="assumptions"></ul>
+            <ul id="limitations"></ul>
+          </details>
+          <p class="source" id="source"></p>
+          <div class="result-actions">
+            <button class="secondary" id="download" type="button" disabled>Download report JSON</button>
+            <button class="secondary" id="print" type="button" disabled>Print report</button>
+          </div>
+        </article>
+      </section>
     </div>
-  </div>
 
-  <div class="field">
-    <div class="label-row">
-      <label for="engagement">Thread engagement length (mm)<span class="badge">v1.1</span></label>
-    </div>
-    <input type="number" id="engagement" value="12" min="0" step="0.5">
-    <div class="viz">
-      <svg id="engagement-viz" viewBox="0 0 560 210" role="img" aria-label="Thread engagement explanation"></svg>
-      <p class="note" id="engagement-note"></p>
-    </div>
-  </div>
+    <footer class="footer">
+      <p><strong>Model boundary:</strong> static, concentric, pure shear; ductile isotropic material; unthreaded full shank; equal plane sharing.</p>
+      <p>Not modeled: ultimate failure, threads, bearing, tear-out, slip, preload, fatigue, eccentricity, bending, or combined loading.</p>
+    </footer>
+  </main>
+  <script>
+    const defaults = { tensile_yield_strength_MPa: 640, diameter_mm: 8, applied_shear_N: 10000, shear_planes: 1, fitting_factor: 1 };
+    const form = document.getElementById("calc-form");
+    const inputs = ["fy", "diameter", "load", "planes", "factor"].map((id) => document.getElementById(id));
+    let latestReport = null;
+    let calculationSequence = 0;
 
-  <div class="field">
-    <div class="label-row">
-      <label for="preload">Expected preload / clamping force (N)<span class="badge">v1.1</span></label>
-    </div>
-    <input type="number" id="preload" value="0" min="0" step="100">
-    <p class="note" id="preload-note">Preload is the tension you put in the bolt by tightening it. It clamps the joint together and resists the bolt loosening.</p>
-    <p class="note" id="suggested-preload"></p>
-  </div>
-
-  <button type="button" onclick="calculate()">Calculate margin of safety</button>
-  <p class="error" id="error"></p>
-
-  <div class="results" id="results">
-    <div class="row"><span>Bolt area</span><span id="r-area">-</span></div>
-    <div class="row"><span>Shear allowable</span><span id="r-allow">-</span></div>
-    <div class="row"><span>Applied / plane</span><span id="r-applied">-</span></div>
-    <div class="row"><span>Margin of safety</span><span id="r-ms">-</span></div>
-    <div class="row"><span>Status</span><span id="r-status">-</span></div>
-    <div class="interpretation" id="interpretation"></div>
-    <div class="viz" id="result-viz-wrap" style="display:none;">
-      <svg id="result-viz" viewBox="0 0 560 210" role="img" aria-label="Result force and margin diagram"></svg>
-      <p class="note">MS = +1.32 means the bolt can take 2.32x the applied load before failing.</p>
-    </div>
-    <p class="ref" id="r-ref"></p>
-  </div>
-</div>
-
-<script>
-const gradeData = {
-  "ISO_8.8": { fty: 640 },
-  "ISO_10.9": { fty: 940 },
-  "ISO_12.9": { fty: 1100 },
-  "NAS_3": { fty: 724 },
-  "A2_70": { fty: 450 }
-};
-
-document.addEventListener("click", function(event) {
-  const clickedHelp = event.target.matches(".help-btn");
-  document.querySelectorAll(".tooltip").forEach(function(tip) {
-    if (!clickedHelp || tip.id !== event.target.dataset.tip) {
-      tip.classList.remove("open");
+    function setMessage(message) { document.getElementById("message").textContent = message; }
+    function setList(id, values) {
+      const list = document.getElementById(id);
+      list.replaceChildren(...values.map((value) => { const item = document.createElement("li"); item.textContent = value; return item; }));
     }
-  });
+    function format(value, digits = 3) {
+      return Number(value).toLocaleString(undefined, { maximumFractionDigits: digits, minimumFractionDigits: 0 });
+    }
+    function showInputValues(values) {
+      document.getElementById("fy").value = values.tensile_yield_strength_MPa;
+      document.getElementById("diameter").value = values.diameter_mm;
+      document.getElementById("load").value = values.applied_shear_N;
+      document.getElementById("planes").value = String(values.shear_planes);
+      document.getElementById("factor").value = values.fitting_factor;
+    }
+    function markStale() {
+      calculationSequence += 1;
+      const submit = document.getElementById("calculate");
+      submit.disabled = false;
+      submit.textContent = "Calculate estimate";
+      if (!latestReport) return;
+      document.getElementById("stale-note").style.display = "block";
+      document.getElementById("download").disabled = true;
+      document.getElementById("print").disabled = true;
+    }
+    inputs.forEach((input) => input.addEventListener("input", markStale));
+    inputs.forEach((input) => input.addEventListener("change", markStale));
 
-  if (clickedHelp) {
-    event.stopPropagation();
-    document.getElementById(event.target.dataset.tip).classList.toggle("open");
-  }
-});
+    function render(report) {
+      latestReport = report;
+      const inputs = report.inputs;
+      const intermediate = report.intermediates;
+      const result = report.result;
+      const labels = {
+        WITHIN_MODELED_YIELD: ["Within modeled yield", "state"],
+        AT_MODELED_YIELD: ["At modeled yield", "state at"],
+        ABOVE_MODELED_YIELD: ["Above modeled yield", "state above"]
+      };
+      const [statusLabel, statusClass] = labels[result.status] || ["Model result", "state"];
+      const status = document.getElementById("result-status");
+      status.textContent = statusLabel;
+      status.className = statusClass;
+      document.getElementById("report-meta").textContent = "Report " + report.report_id + " · " + report.created_at + " · schema " + report.report_schema_version + " · calculator " + report.calculator_version;
+      const inputRows = [
+        ["Tensile yield", inputs.tensile_yield_strength.value + " MPa"],
+        ["Unthreaded shank diameter", inputs.shank_diameter.value + " mm"],
+        ["Applied shear load", inputs.applied_shear_load.value + " N"],
+        ["Shear planes", inputs.shear_planes.value],
+        ["Load factor", inputs.load_factor.value]
+      ];
+      const snapshot = document.getElementById("report-inputs");
+      snapshot.replaceChildren();
+      const snapshotTitle = document.createElement("strong"); snapshotTitle.textContent = "Input snapshot"; snapshot.append(snapshotTitle);
+      inputRows.forEach(([label, value]) => { const row = document.createElement("p"); row.textContent = label + ": " + value; snapshot.append(row); });
+      document.getElementById("margin-value").innerHTML = (result.margin_of_safety >= 0 ? "+" : "") + format(result.margin_of_safety, 6) + " <small>ratio</small>";
+      document.getElementById("capacity-value").innerHTML = format(result.total_nominal_yield_capacity_N, 2) + " <small>N</small>";
+      document.getElementById("fy-result").textContent = format(inputs.tensile_yield_strength.value) + " MPa";
+      document.getElementById("tau-result").textContent = format(intermediate.von_mises_shear_yield_strength.value) + " MPa";
+      document.getElementById("area-result").textContent = format(intermediate.full_circular_shank_area.value) + " mm²";
+      document.getElementById("plane-capacity-result").textContent = format(intermediate.nominal_yield_capacity_per_plane.value, 2) + " N";
+      document.getElementById("demand-result").textContent = format(result.factored_applied_load_N, 2) + " N";
+      document.getElementById("plane-load-result").textContent = format(intermediate.factored_applied_load_per_plane.value, 2) + " N";
+      setList("assumptions", report.assumptions);
+      setList("limitations", report.limitations);
+      const source = report.formula_source;
+      const sourceElement = document.getElementById("source");
+      sourceElement.replaceChildren(document.createTextNode("Formula source: " + source.author + ", " + source.title + ", " + source.location + ". "));
+      const link = document.createElement("a"); link.href = source.url; link.textContent = "Read the source"; link.target = "_blank"; link.rel = "noreferrer"; sourceElement.append(link);
+      document.getElementById("empty-state").style.display = "none";
+      document.getElementById("result").style.display = "block";
+      document.getElementById("stale-note").style.display = "none";
+      document.getElementById("download").disabled = false;
+      document.getElementById("print").disabled = false;
+      setMessage("");
+    }
 
-document.querySelectorAll(".option-card input, .toggle-card input").forEach(function(input) {
-  input.addEventListener("change", function() {
-    const group = document.querySelectorAll("input[name='" + input.name + "']");
-    group.forEach(function(item) {
-      item.closest(".option-card, .toggle-card").classList.toggle("active", item.checked);
+    async function calculate(event) {
+      if (event) event.preventDefault();
+      const requestSequence = ++calculationSequence;
+      setMessage("");
+      if (!form.reportValidity()) return;
+      const positiveInput = ["fy", "diameter", "load"].find((id) => !(Number(document.getElementById(id).value) > 0));
+      if (positiveInput) {
+        setMessage("Tensile yield strength, shank diameter, and applied load must be greater than zero.");
+        document.getElementById(positiveInput).focus();
+        return;
+      }
+      const submit = document.getElementById("calculate");
+      submit.disabled = true;
+      submit.textContent = "Calculating…";
+      const body = {
+        tensile_yield_strength_MPa: Number(document.getElementById("fy").value),
+        diameter_mm: Number(document.getElementById("diameter").value),
+        applied_shear_N: Number(document.getElementById("load").value),
+        shear_planes: Number(document.getElementById("planes").value),
+        fitting_factor: Number(document.getElementById("factor").value)
+      };
+      try {
+        const response = await fetch("/api/v1/calculations/bolt-shear", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body) });
+        const data = await response.json();
+        if (!response.ok) {
+          const detail = Array.isArray(data.detail) ? data.detail.map((item) => item.msg).join(" ") : data.detail;
+          throw new Error(detail || "The calculation request was rejected.");
+        }
+        if (requestSequence === calculationSequence) render(data);
+      } catch (error) {
+        if (requestSequence === calculationSequence) setMessage(error.message || "Could not reach the local calculation service.");
+      } finally {
+        if (requestSequence === calculationSequence) {
+          submit.disabled = false;
+          submit.textContent = "Calculate estimate";
+        }
+      }
+    }
+    form.addEventListener("submit", calculate);
+    document.getElementById("example").addEventListener("click", () => { showInputValues(defaults); calculate(); });
+    document.getElementById("reset").addEventListener("click", () => {
+      calculationSequence += 1;
+      const submit = document.getElementById("calculate");
+      submit.disabled = false;
+      submit.textContent = "Calculate estimate";
+      HTMLFormElement.prototype.reset.call(form);
+      showInputValues(defaults);
+      latestReport = null;
+      document.getElementById("result").style.display = "none";
+      document.getElementById("empty-state").style.display = "grid";
+      document.getElementById("download").disabled = true;
+      document.getElementById("print").disabled = true;
+      document.getElementById("stale-note").style.display = "none";
+      setMessage("");
     });
-
-    if (input.name === "plane-toggle") {
-      document.getElementById("planes").value = input.value;
-    }
-    updateVisuals();
-  });
-});
-
-["diameter", "grade", "ff", "engagement", "preload", "shear", "planes"].forEach(function(id) {
-  document.getElementById(id).addEventListener("input", updateVisuals);
-  document.getElementById(id).addEventListener("change", updateVisuals);
-});
-
-function numberValue(id, fallback) {
-  const value = parseFloat(document.getElementById(id).value);
-  return Number.isFinite(value) ? value : fallback;
-}
-
-function boltArea(diameter) {
-  return Math.PI * Math.pow(diameter / 2.0, 2);
-}
-
-function svgCircle(cx, cy, r, fill, stroke) {
-  return '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="' + fill + '" stroke="' + stroke + '" stroke-width="2"/>';
-}
-
-function updateDiameterVisual() {
-  const diameter = numberValue("diameter", 8);
-  const radius = Math.max(8, Math.min(58, diameter * 4));
-  const svg = document.getElementById("diameter-viz");
-  svg.innerHTML =
-    '<rect x="0" y="0" width="560" height="170" rx="8" fill="#111"/>' +
-    '<text x="22" y="28" fill="#bbb" font-size="13">Selected bolt cross-section</text>' +
-    svgCircle(280, 86, radius, "#1d9e75", "#7ee4c3") +
-    '<line x1="280" y1="' + (86 - radius) + '" x2="280" y2="' + (86 + radius) + '" stroke="#e0e0e0" stroke-width="1"/>' +
-    '<text x="300" y="90" fill="#e0e0e0" font-size="14">M' + diameter.toFixed(1).replace(".0", "") + ' / ' + diameter.toFixed(1) + ' mm</text>' +
-    '<text x="22" y="150" fill="#888" font-size="11">Larger diameter increases cross-sectional area quickly.</text>';
-
-  const sizes = [6, 8, 10, 12];
-  document.getElementById("diameter-compare").innerHTML = sizes.map(function(size) {
-    const active = Math.abs(diameter - size) <= 0.5 ? " active" : "";
-    const circle = '<svg viewBox="0 0 60 42" aria-hidden="true">' +
-      svgCircle(30, 20, size * 1.4, active ? "#1d9e75" : "#2b2b2b", active ? "#7ee4c3" : "#777") +
-      (active ? '<path d="M30 3 L24 12 H36 Z" fill="#1d9e75"/>' : '') +
-      '</svg>';
-    return '<div class="compare-item' + active + '">' + circle + 'M' + size + ' (' + size + 'mm)</div>';
-  }).join("");
-}
-
-function updatePlanesVisual() {
-  const planes = document.getElementById("planes").value;
-  const svg = document.getElementById("planes-viz");
-  if (planes === "1") {
-    svg.innerHTML =
-      '<rect x="0" y="0" width="560" height="230" rx="8" fill="#111"/>' +
-      '<rect x="80" y="78" width="155" height="74" rx="4" fill="#2a2a2a" stroke="#777"/>' +
-      '<rect x="245" y="78" width="155" height="74" rx="4" fill="#343434" stroke="#777"/>' +
-      '<rect x="260" y="52" width="42" height="126" rx="14" fill="#8a8a8a" stroke="#ddd"/>' +
-      '<line x1="240" y1="45" x2="240" y2="185" stroke="#ef4444" stroke-width="4" stroke-dasharray="7 5"/>' +
-      '<path d="M90 58 H170" stroke="#1d9e75" stroke-width="4"/><path d="M90 58 L104 50 V66 Z" fill="#1d9e75"/>' +
-      '<path d="M390 172 H310" stroke="#f59e0b" stroke-width="4"/><path d="M390 172 L376 164 V180 Z" fill="#f59e0b"/>' +
-      '<text x="80" y="35" fill="#ddd" font-size="15">Single shear</text>' +
-      '<text x="80" y="205" fill="#ef4444" font-size="13">Bolt cuts in ONE place</text>' +
-      '<text x="280" y="205" fill="#888" font-size="12">Example: hinge pin, clevis, or lap joint</text>';
-  } else {
-    svg.innerHTML =
-      '<rect x="0" y="0" width="560" height="230" rx="8" fill="#111"/>' +
-      '<rect x="82" y="78" width="120" height="74" rx="4" fill="#2a2a2a" stroke="#777"/>' +
-      '<rect x="220" y="62" width="120" height="106" rx="4" fill="#343434" stroke="#777"/>' +
-      '<rect x="358" y="78" width="120" height="74" rx="4" fill="#2a2a2a" stroke="#777"/>' +
-      '<rect x="270" y="42" width="42" height="146" rx="14" fill="#8a8a8a" stroke="#ddd"/>' +
-      '<line x1="212" y1="42" x2="212" y2="188" stroke="#ef4444" stroke-width="4" stroke-dasharray="7 5"/>' +
-      '<line x1="348" y1="42" x2="348" y2="188" stroke="#ef4444" stroke-width="4" stroke-dasharray="7 5"/>' +
-      '<path d="M280 48 V20" stroke="#1d9e75" stroke-width="4"/><path d="M280 20 L272 34 H288 Z" fill="#1d9e75"/>' +
-      '<path d="M142 172 H102" stroke="#777" stroke-width="4"/><path d="M418 172 H458" stroke="#777" stroke-width="4"/>' +
-      '<text x="80" y="35" fill="#ddd" font-size="15">Double shear</text>' +
-      '<text x="80" y="205" fill="#ef4444" font-size="13">Bolt cuts in TWO places - roughly 2x stronger</text>' +
-      '<text x="340" y="205" fill="#888" font-size="12">Example: fork/clevis joint or bridge pin</text>';
-  }
-}
-
-function updateFittingFactorVisual() {
-  const ff = Math.max(1.0, Math.min(2.0, numberValue("ff", 1.0)));
-  const pct = (ff - 1.0) / 1.0;
-  const x = 60 + pct * 440;
-  document.getElementById("ff-viz").innerHTML =
-    '<rect x="0" y="0" width="560" height="90" rx="8" fill="#111"/>' +
-    '<line x1="60" y1="42" x2="500" y2="42" stroke="#333" stroke-width="10" stroke-linecap="round"/>' +
-    '<line x1="60" y1="42" x2="' + x + '" y2="42" stroke="#1d9e75" stroke-width="10" stroke-linecap="round"/>' +
-    [1.0, 1.15, 1.5, 2.0].map(function(value) {
-      const mx = 60 + (value - 1.0) * 440;
-      return '<line x1="' + mx + '" y1="28" x2="' + mx + '" y2="58" stroke="#aaa" stroke-width="2"/><text x="' + (mx - 10) + '" y="76" fill="#aaa" font-size="11">' + value + '</text>';
-    }).join("") +
-    '<circle cx="' + x + '" cy="42" r="12" fill="#1d9e75" stroke="#7ee4c3" stroke-width="2"/>' +
-    '<text x="' + Math.max(16, Math.min(470, x - 34)) + '" y="22" fill="#e0e0e0" font-size="12">Current: ' + ff.toFixed(2) + '</text>';
-}
-
-function updateEngagementVisual() {
-  const diameter = numberValue("diameter", 8);
-  const steel = diameter;
-  const aluminium = diameter * 1.5;
-  const engagement = numberValue("engagement", diameter * 1.5);
-  const okWidth = Math.min(112, Math.max(24, engagement * 7));
-  document.getElementById("engagement-note").textContent =
-    "For M" + diameter.toFixed(1).replace(".0", "") + " in steel: minimum " + steel.toFixed(1).replace(".0", "") + "mm. For M" +
-    diameter.toFixed(1).replace(".0", "") + " in aluminium: minimum " + aluminium.toFixed(1).replace(".0", "") + "mm.";
-  document.getElementById("engagement-viz").innerHTML =
-    '<rect x="0" y="0" width="560" height="210" rx="8" fill="#111"/>' +
-    '<text x="28" y="30" fill="#ddd" font-size="13">Thread engagement is the length of thread overlap inside the hole.</text>' +
-    '<rect x="46" y="78" width="120" height="54" rx="6" fill="#2a2a2a" stroke="#777"/>' +
-    '<rect x="150" y="92" width="30" height="26" fill="#8a8a8a" stroke="#ddd"/>' +
-    '<rect x="180" y="92" width="26" height="26" fill="#ef4444" opacity="0.8"/>' +
-    '<text x="46" y="158" fill="#ef4444" font-size="12">Too short -> thread strips</text>' +
-    '<rect x="318" y="78" width="150" height="54" rx="6" fill="#2a2a2a" stroke="#777"/>' +
-    '<rect x="438" y="92" width="30" height="26" fill="#8a8a8a" stroke="#ddd"/>' +
-    '<rect x="' + (438 - okWidth) + '" y="92" width="' + okWidth + '" height="26" fill="#1d9e75" opacity="0.85"/>' +
-    '<line x1="' + (438 - okWidth) + '" y1="70" x2="438" y2="70" stroke="#e0e0e0"/>' +
-    '<path d="M' + (438 - okWidth) + ' 70 L' + (448 - okWidth) + ' 65 V75 Z" fill="#e0e0e0"/>' +
-    '<path d="M438 70 L428 65 V75 Z" fill="#e0e0e0"/>' +
-    '<text x="332" y="158" fill="#1d9e75" font-size="12">Correct -> full engagement</text>' +
-    '<text x="330" y="188" fill="#aaa" font-size="12">Current input: ' + engagement.toFixed(1).replace(".0", "") + ' mm</text>';
-}
-
-function updatePreload() {
-  const grade = document.getElementById("grade").value;
-  const diameter = numberValue("diameter", 8);
-  const joint = document.querySelector("input[name='joint-type']:checked").value;
-  const gradeSelect = document.getElementById("grade");
-  const preload = document.getElementById("preload");
-  const warning = document.getElementById("wood-warning");
-
-  if (joint === "wood") {
-    gradeSelect.disabled = true;
-    preload.disabled = true;
-    warning.style.display = "block";
-    document.getElementById("suggested-preload").textContent = "Suggested preload is not available for wood screws in this steel bolt calculator.";
-    return;
-  }
-
-  gradeSelect.disabled = false;
-  preload.disabled = false;
-  warning.style.display = "none";
-  const fty = gradeData[grade].fty;
-  const suggested = 0.7 * fty * boltArea(diameter);
-  document.getElementById("suggested-preload").textContent =
-    "If you do not know your preload, a rough estimate is 70% of bolt proof load = " +
-    Math.round(suggested).toLocaleString() + " N. Suggested preload for " + grade.replace("_", " ") +
-    " M" + diameter.toFixed(1).replace(".0", "") + ": " + (suggested / 1000).toFixed(1) + " kN.";
-}
-
-function setInterpretation(data) {
-  const box = document.getElementById("interpretation");
-  const reserve = Math.round(data.margin_of_safety * 100);
-  box.className = "interpretation " + data.status;
-
-  if (data.status === "PASS") {
-    box.textContent = "This bolt is adequate for the applied load with a " + reserve + "% strength reserve. Standard aerospace practice requires MS > 0.0; MS > 0.2 is preferred.";
-  } else if (data.status === "MARGINAL") {
-    box.textContent = "This bolt passes but has less than 20% strength reserve. Consider using the next size up or a higher grade. Review load assumptions carefully.";
-  } else {
-    box.textContent = "This bolt will fail under the applied load. Increase diameter, use higher grade, add shear planes, or reduce the applied load.";
-  }
-
-  box.style.display = "block";
-}
-
-function updateResultVisual(data) {
-  const ms = data.margin_of_safety;
-  const status = data.status;
-  const fillColor = status === "FAIL" ? "#ef4444" : status === "MARGINAL" ? "#f59e0b" : "#1d9e75";
-  const width = status === "FAIL" ? Math.min(220, Math.abs(ms) * 220) : Math.min(220, ms * 220);
-  const label = status === "FAIL" ? "Failure margin" : "Strength reserve";
-  document.getElementById("result-viz-wrap").style.display = "block";
-  document.getElementById("result-viz").innerHTML =
-    '<rect x="0" y="0" width="560" height="210" rx="8" fill="#111"/>' +
-    '<rect x="92" y="62" width="270" height="72" rx="6" fill="#2a2a2a" stroke="#777"/>' +
-    '<rect x="210" y="36" width="44" height="124" rx="14" fill="#8a8a8a" stroke="#ddd"/>' +
-    '<path d="M430 96 H300" stroke="#ef4444" stroke-width="5"/><path d="M430 96 L414 86 V106 Z" fill="#ef4444"/>' +
-    '<text x="338" y="82" fill="#ef4444" font-size="12">Applied shear force</text>' +
-    '<text x="70" y="178" fill="#bbb" font-size="12">' + label + '</text>' +
-    '<rect x="190" y="164" width="220" height="14" rx="7" fill="#252525" stroke="#444"/>' +
-    '<rect x="190" y="164" width="' + width + '" height="14" rx="7" fill="' + fillColor + '"/>' +
-    '<text x="420" y="177" fill="' + fillColor + '" font-size="12">MS ' + (ms >= 0 ? "+" : "") + ms + '</text>';
-}
-
-function updateVisuals() {
-  updateDiameterVisual();
-  updatePlanesVisual();
-  updateFittingFactorVisual();
-  updateEngagementVisual();
-  updatePreload();
-}
-
-async function calculate() {
-  const err = document.getElementById("error");
-  const res = document.getElementById("results");
-  err.style.display = "none";
-  res.style.display = "none";
-
-  const body = {
-    grade: document.getElementById("grade").value,
-    diameter_mm: parseFloat(document.getElementById("diameter").value),
-    applied_shear_N: parseFloat(document.getElementById("shear").value),
-    shear_planes: parseInt(document.getElementById("planes").value, 10),
-    fitting_factor: parseFloat(document.getElementById("ff").value)
-  };
-
-  try {
-    const response = await fetch("/calculate/shear", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body)
+    document.getElementById("download").addEventListener("click", () => {
+      if (!latestReport || document.getElementById("download").disabled) return;
+      const file = new Blob([JSON.stringify(latestReport, null, 2)], {type:"application/json"});
+      const url = URL.createObjectURL(file);
+      const link = document.createElement("a"); link.href = url; link.download = "engcalc-report-" + latestReport.report_id + ".json"; link.click();
+      URL.revokeObjectURL(url);
     });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      err.textContent = errorData.detail;
-      err.style.display = "block";
-      return;
-    }
-
-    const data = await response.json();
-    document.getElementById("r-area").textContent = data.bolt_area_mm2 + " mm2";
-    document.getElementById("r-allow").textContent = (data.shear_allowable_N / 1000).toFixed(2) + " kN";
-    document.getElementById("r-applied").textContent = (data.applied_per_plane_N / 1000).toFixed(2) + " kN";
-    document.getElementById("r-ms").textContent = (data.margin_of_safety >= 0 ? "+" : "") + data.margin_of_safety;
-
-    const status = document.getElementById("r-status");
-    status.textContent = data.status;
-    status.className = data.status;
-
-    setInterpretation(data);
-    updateResultVisual(data);
-    document.getElementById("r-ref").textContent = data.standard_ref;
-    res.style.display = "block";
-  } catch (error) {
-    err.textContent = "Could not reach API. Is the server running?";
-    err.style.display = "block";
-  }
-}
-
-updateVisuals();
-</script>
+    document.getElementById("print").addEventListener("click", () => {
+      if (latestReport && !document.getElementById("print").disabled) window.print();
+    });
+    showInputValues(defaults);
+  </script>
 </body>
 </html>

@@ -1,47 +1,61 @@
 # EngCalc
 
-EngCalc is a production engineering micro-SaaS for calculator-style aerospace and mechanical engineering checks.
+EngCalc is a local-first educational bolt-shank shear-yield calculator. Version 1 uses a user-supplied nominal tensile yield strength and reports the inputs, units, intermediate values, assumptions, limitations, formula source, and calculator version with each result. It is not a design allowable, safety certification, or engineering approval.
 
-## Current Features
+The original project README is preserved in [historical documentation](docs/history/README-2026-10-03-before-v1.md). The v1 calculation model and its evidence are described in [the model note](docs/calculation-model-v1.md).
 
-- Fastener shear margin calculator
-- FastAPI endpoint for shear calculations
-- Pytest coverage for calculator behavior
+## Requirements
 
-## Project Structure
+- Python 3.10 or newer
+- Git
 
-```text
-app/
-  main.py
-  calculators/
-    fastener.py
-tests/
-  test_fastener.py
-requirements.txt
+The default database is `engcalc.db`, a SQLite file in the project directory. No external database or account is needed for local use. Set `DATABASE_URL` only when deliberately using another SQLAlchemy-supported database.
+
+## Run locally
+
+Clone the repository and enter it:
+
+```powershell
+git clone https://github.com/ZephyrianDawnstrider/EngCalc.git
+cd EngCalc
 ```
 
-## Run Tests
+PowerShell:
 
-```bash
-pytest tests/test_fastener.py -v
+```powershell
+py -3 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+python -m uvicorn app.main:app --reload
 ```
 
-## Run API Locally
+macOS/Linux shell:
 
-```bash
-uvicorn app.main:app --reload
+```sh
+python3 -m venv .venv
+. .venv/bin/activate
+python -m pip install -r requirements.txt
+python -m uvicorn app.main:app --reload
 ```
 
-Then open:
+Open <http://127.0.0.1:8000/ui>. The API schema is at <http://127.0.0.1:8000/docs>. Run tests with `python -m pytest -q`.
 
-```text
-http://127.0.0.1:8000/docs
+## Calculation scope
+
+The model is limited to static, concentric, pure shear of a ductile, isotropic material through a smooth, unthreaded circular shank. It uses the user-provided tensile yield strength, the full shank area at each plane, equal sharing across one or two planes, and a user-selected load factor. The status says whether this simplified estimate is within, at, or above the modeled yield boundary.
+
+It does not evaluate ultimate failure, thread shear, bearing, tear-out, slip, preload, fatigue, eccentricity, bending, or combined loading. See the [model note](docs/calculation-model-v1.md) for the equations and assumptions. The user is responsible for verifying material properties, geometry, and loading; this tool does not select or verify a fastener grade.
+
+## API v1 example
+
+```sh
+curl -X POST http://127.0.0.1:8000/api/v1/calculations/bolt-shear \
+  -H "Content-Type: application/json" \
+  -d '{"tensile_yield_strength_MPa":640,"diameter_mm":8,"applied_shear_N":10000,"shear_planes":1,"fitting_factor":1.0}'
 ```
 
-## Engineering Note
+The response includes a `report_id`, input snapshot, units, formula, intermediates, assumptions, limitations, and source. Retrieve the persisted snapshot at `/api/v1/reports/{report_id}`. The former grade-preset endpoint `/calculate/shear` returns HTTP 410 because its embedded property data and conditions were not adequately sourced. The v1 endpoint requires an explicit, user-verified `tensile_yield_strength_MPa` value.
 
-Fastener calculations should be verified against NASA-TM-2012-217454 before use in real engineering work.
+## Formula source
 
-# TODO: Add exact standard section references for each calculator formula.
-# TODO: Add input units and assumptions for every endpoint.
-# TODO: Add versioned calculation reports later.
+The pure-shear von Mises yield relation is `tau_y = Fy / sqrt(3)`. It is derived for an idealized ductile material model in David Roylance's MIT note, [Yield and Plastic Flow](https://web.mit.edu/course/3/3.11/www/modules/yield.pdf), printed page 5. This educational derivation is not a fastener design standard. The previously cited [NASA-TM-2012-217454](https://ntrs.nasa.gov/search.jsp?R=20120003667) studies combined shear and tension failure tests and does not substantiate the superseded formula claim; that historical context is recorded in the model note.
