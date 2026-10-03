@@ -1,0 +1,26 @@
+{
+  "id": "/",
+  "name": "EngCalc — Bolt-Shank Shear-Yield Calculator",
+  "short_name": "EngCalc",
+  "description": "An educational bolt-shank shear-yield calculator with versioned reports.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f4f7fa",
+  "theme_color": "#14283f",
+  "categories": ["education", "productivity", "utilities"],
+  "icons": [
+    {
+      "src": "/icons/engcalc-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/engcalc-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

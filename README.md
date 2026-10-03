@@ -59,3 +59,17 @@ The response includes a `report_id`, input snapshot, units, formula, intermediat
 ## Formula source
 
 The pure-shear von Mises yield relation is `tau_y = Fy / sqrt(3)`. It is derived for an idealized ductile material model in David Roylance's MIT note, [Yield and Plastic Flow](https://web.mit.edu/course/3/3.11/www/modules/yield.pdf), printed page 5. This educational derivation is not a fastener design standard. The previously cited [NASA-TM-2012-217454](https://ntrs.nasa.gov/search.jsp?R=20120003667) studies combined shear and tension failure tests and does not substantiate the superseded formula claim; that historical context is recorded in the model note.
+
+## Browser app
+
+The separate React/TypeScript browser app is version 0.1.0; its calculator model remains version 1.0.0. Calculations run in the browser, and saved reports stay in that browser on that device. After the app shell is cached, calculation, local report history, and JSON export work offline. Reports are not uploaded or synchronized. See [the PWA and browser acceptance note](docs/pwa-v1.md).
+
+Run the browser app locally:
+
+```sh
+cd frontend
+npm ci
+npm run dev
+```
+
+Run the frontend tests and production build from the same directory with `npm run test`, `npm run test:browser`, and `npm run build`. The root `render.yaml` describes a manually controlled static site; adding it does not itself create or deploy a hosted service.
