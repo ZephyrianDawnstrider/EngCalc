@@ -1304,3 +1304,56 @@ button.module-card:hover {
     color: #111;
   }
 }
+
+/* Axial module uses the shared workbench while retaining a separate report. */
+.axial-diagram {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  color: var(--teal);
+  font-size: 20px;
+  margin: 35px 0;
+}
+.axial-diagram span {
+  border: 2px solid #47737f;
+  background: #dce9eb;
+  padding: 13px 12px;
+  font-size: 11px;
+}
+.axial-module .method-grid ul {
+  margin: 12px 0 0;
+  padding-left: 17px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.65;
+}
+.axial-module .method-grid li {
+  margin-bottom: 7px;
+}
+.axial-history-count {
+  color: var(--muted);
+  font-size: 11px;
+}
+.roadmap-note {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 16px;
+}
+@media (max-width: 940px) {
+  .sidebar nav {
+    flex-wrap: wrap;
+  }
+}
+@media (max-width: 700px) {
+  .axial-history-item {
+    flex-wrap: wrap;
+  }
+  .axial-history-item .history-summary {
+    text-align: left;
+  }
+}
+@media print {
+  [hidden] {
+    display: none !important;
+  }
+}

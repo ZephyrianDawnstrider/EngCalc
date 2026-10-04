@@ -21,6 +21,7 @@ import {
 
 import { convertUnits, type ForceUnit } from "./units";
 import { UnitConverter } from "./UnitConverter";
+import { AxialCalculator } from "./AxialCalculator";
 
 const EXAMPLE: ShearInputs = {
   tensile_yield_strength_MPa: 640,
@@ -106,7 +107,27 @@ function downloadRawHistory() {
 }
 
 export default function App() {
-  const [module, setModule] = useState<"bolt" | "units">("bolt");
+  const [module, setModule] = useState<"bolt" | "units" | "axial">("bolt");
+  const moduleInfo = {
+    bolt: {
+      category: "01 / FASTENER MECHANICS",
+      title: "Bolt-shank shear yield",
+      description:
+        "Understand the load. See the calculation. Compare your options.",
+    },
+    units: {
+      category: "02 / ENGINEERING ESSENTIALS",
+      title: "Get your units right.",
+      description:
+        "Simple SI conversions, with every scale factor in plain sight.",
+    },
+    axial: {
+      category: "03 / MEMBER MECHANICS",
+      title: "Round-shank axial yield",
+      description:
+        "Explore uniform tensile stress and a nominal material-yield boundary.",
+    },
+  }[module];
   const [loadUnit, setLoadUnit] = useState<ForceUnit>("N");
   const [baseline, setBaseline] = useState<CalculationReport | null>(null);
   const reportHeading = useRef<HTMLHeadingElement>(null);
@@ -342,6 +363,17 @@ export default function App() {
             </span>
             <span className="nav-arrow">↗</span>
           </button>
+          <button
+            className={`nav-item ${module === "axial" ? "active" : ""}`}
+            aria-pressed={module === "axial"}
+            onClick={() => setModule("axial")}
+          >
+            <span aria-hidden="true">↔</span>
+            <span>
+              Axial yield<small>Smooth round member</small>
+            </span>
+            <span className="nav-arrow">↗</span>
+          </button>
         </nav>
         <a className="catalogue-link" href="#module-catalogue">
           Explore the module roadmap →
@@ -358,7 +390,12 @@ export default function App() {
           <span>
             WORKSPACE{" "}
             <span className="breadcrumb">
-              / {module === "bolt" ? "Fasteners" : "Essentials"}
+              /{" "}
+              {module === "bolt"
+                ? "Fasteners"
+                : module === "axial"
+                  ? "Members"
+                  : "Essentials"}
             </span>
           </span>
           <div className="pwa-tools">
@@ -385,24 +422,12 @@ export default function App() {
         <main id="workspace">
           <section className="page-heading no-print">
             <div>
-              <p className="eyebrow">
-                {module === "bolt"
-                  ? "01 / FASTENER MECHANICS"
-                  : "02 / ENGINEERING ESSENTIALS"}
-              </p>
-              <h1>
-                {module === "bolt"
-                  ? "Bolt-shank shear yield"
-                  : "Get your units right."}
-              </h1>
-              <p>
-                {module === "bolt"
-                  ? "Understand the load. See the calculation. Compare your options."
-                  : "Simple SI conversions, with every scale factor in plain sight."}
-              </p>
+              <p className="eyebrow">{moduleInfo.category}</p>
+              <h1>{moduleInfo.title}</h1>
+              <p>{moduleInfo.description}</p>
             </div>
             <span className="model-tag">
-              {module === "bolt"
+              {module !== "units"
                 ? "Educational model · v1.0.0"
                 : "SI prefix conversions"}
             </span>
@@ -415,7 +440,7 @@ export default function App() {
           <div hidden={module !== "units"} className="no-print">
             <UnitConverter />
           </div>
-          <div hidden={module !== "bolt"}>
+          <div id="shear-panel" hidden={module !== "bolt"}>
             <aside className="scope-note no-print">
               <span aria-hidden="true">ⓘ</span>
               <p>
@@ -672,7 +697,8 @@ export default function App() {
                       </div>
                     </div>
                     <div
-                      className="demand-chart" role="img"
+                      className="demand-chart"
+                      role="img"
                       aria-label={`Demand is ${percentLabel} of nominal modeled capacity`}
                     >
                       <div className="chart-label">
@@ -1024,6 +1050,9 @@ export default function App() {
               </div>
             </section>
           </div>
+          <div id="axial-panel" hidden={module !== "axial"}>
+            <AxialCalculator />
+          </div>
           <section className="module-catalogue no-print" id="module-catalogue">
             <div className="section-heading">
               <div>
@@ -1058,17 +1087,28 @@ export default function App() {
                 </p>
                 <span>Open converter →</span>
               </button>
-              <div className="module-card planned">
-                <span className="module-status">Planned · unavailable</span>
-                <h3>Connection checks</h3>
+              <button
+                className="module-card"
+                onClick={() => {
+                  setModule("axial");
+                  document.getElementById("workspace")?.scrollIntoView();
+                }}
+              >
+                <span className="module-status">Available</span>
+                <h3>Axial yield</h3>
                 <p>
-                  Bearing, tension, and combined loading need sourced models and
-                  verification before release.
+                  Nominal tensile yield of a smooth round member. Separate from
+                  a connection check.
                 </p>
-                <span>No design checks available</span>
-              </div>
+                <span>Open axial model →</span>
+              </button>
             </div>
           </section>
+          <p className="planned roadmap-note no-print">
+            Connection design checks remain unavailable. Threads, bearing,
+            combined loading, and joint behavior require separately sourced and
+            verified models.
+          </p>
           <footer className="app-footer no-print">
             <span>EngCalc / Understand every number.</span>
             <span>Local history is not a backup. Export what matters.</span>

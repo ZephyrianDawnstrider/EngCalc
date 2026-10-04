@@ -42,3 +42,12 @@ The workbench adds N/kN load entry, clearer model-only results, pinned session c
 The Browser tool could not open either the live URL or local preview because its security check could not verify saved browser permissions. Its exact reason was: "Browser Use could not request permission." No alternate browser mechanism was used to bypass that control. Consequently, fresh desktop/mobile screenshots, visual acceptance, print-layout acceptance, true offline reload/installability, and waiting-worker runtime acceptance are **NOT PROVEN for v0.2.0**. The pre-existing browser test heading was updated to the new UI title, but its tests were not executed in this blocked session.
 
 Render deployment state and exact commit identity are recorded separately after integration. No physical phone installation is claimed.
+
+
+## 4 October 2026 — v0.3.0 axial module (superseding app version)
+
+The app/cache version advances to 0.3.0 for the separate [round-shank axial-yield model](axial-yield-model-v1.md). The shear calculator, v1 report/history contract, service-worker registration, deferred update policy, and cache configuration remain unchanged. Axial model 1.0.0 uses explicitly namespaced report schema `axial-yield/1.0` and separate history key `engcalc.axial-report-history.v1`, with envelope version 1 and no migration of shear data.
+
+TypeScript and all 35 tests across 5 Vitest files passed, including existing model parity/storage/unit/UI coverage and new axial numerical/boundary/evidence/storage/module-isolation checks. The production build and generated v0.3.0 PWA/axial-identity artifact checks passed. Deployment identity is recorded separately in the release receipt. The generated shell precaches the additional module; artifact generation alone does not prove offline runtime behavior.
+
+The unresolved browser permission-service limitation from v0.2.0 still applies. No fresh visual/mobile, offline reload, installability, waiting-worker runtime, or print-layout acceptance is claimed for v0.3.0. Simulated DOM checks confirm active/hidden module wrappers and printable evidence content only. The previous releases' dated acceptance evidence is retained above and is not re-labelled as v0.3.0 acceptance.

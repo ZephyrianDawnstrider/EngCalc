@@ -32,3 +32,8 @@ Bearing or axial tension is a possible next model, not a shipped feature. Before
 ## Validation gate
 
 The release evidence is appended to [the PWA note](pwa-v1.md). Source tests and a successful build do not establish visual, print-layout, physical-install, or true offline-browser acceptance. Browser permission infrastructure was unavailable during this change; those gates are explicitly separate.
+
+
+## 4 October 2026 — implemented next-model update
+
+The first bounded increment after v0.2.0 is the [Round-shank axial yield model](axial-yield-model-v1.md), introduced in app v0.3.0. It estimates nominal member yield under uniform axial tension with a sourced mechanics relation, separate report/history contract, and independent example/tests. This supersedes the earlier future-path reference to axial tension only. Threaded-bolt design, bearing, joint behavior, combined loading, and code-specific connection checks remain unavailable.

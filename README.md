@@ -82,3 +82,10 @@ This section supersedes the browser app version 0.1.0 above; the v1 model and hi
 The [official-source competitive audit](docs/ux-competitive-audit-2026-10-04.md) compares workflows with Autodesk Inventor, Hilti PROFIS, IDEA StatiCa, and SkyCiv. EngCalc aims for a simpler transparent educational workflow; it does not claim their CAD integration, code-design coverage, or connection-verification capability. Bearing/tension/combined checks remain unavailable until individually sourced and verified.
 
 Run `npm run check` and `npm run build` from `frontend/`. See the dated [PWA acceptance record](docs/pwa-v1.md) for source, build, browser, and hosted gates; do not treat a passing build as browser acceptance.
+
+
+## 4 October 2026 — browser workbench v0.3.0
+
+This release adds [Round-shank axial yield](docs/axial-yield-model-v1.md), a separate educational estimate for a smooth round member under uniform static axial tension. It reports original area, factored engineering stress, nominal yield load, demand ratio, and model margin, with an MIT source and an independent numeric example. It excludes threads, preload, joint behavior, compression, fracture, fatigue, and code design. Supplied yield may use an offset convention; exact plastic onset is not calculated.
+
+Axial snapshots use report schema `axial-yield/1.0` and their own local history. Shear v1 records, calculations, and stored bytes remain unchanged. Each model has its own comparison baseline, JSON export, printable evidence, and saved-snapshot list. This is a browser-only model; the existing FastAPI shear endpoint is unchanged. The latest [PWA evidence](docs/pwa-v1.md) distinguishes source/build/deployment checks from browser acceptance.

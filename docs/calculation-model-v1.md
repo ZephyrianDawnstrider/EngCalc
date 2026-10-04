@@ -47,3 +47,8 @@ It does not model ultimate failure, threads crossing the shear plane, bearing, t
 The equation `tau_y = Fy / sqrt(3)` follows the von Mises yield criterion for pure shear as derived in David Roylance, MIT Department of Materials Science and Engineering, [Yield and Plastic Flow](https://web.mit.edu/course/3/3.11/www/modules/yield.pdf), printed page 5 (PDF page 5). The report returns this source with every calculation.
 
 The earlier application described a `0.577 * Ftu` relation as a Von Mises shear-strength equation supported by “NASA-TM-2012-217454 §3.1 Eq. 3/5.” That citation and description were not supported: the NASA technical memorandum is a report on combined shear and tension failure tests, and its section numbering does not substantiate that claimed derivation. Version 1 removes that formula and the unsourced grade presets. The original README is preserved in [the dated archive](history/README-2026-10-03-before-v1.md).
+
+
+## 4 October 2026 — scope update (browser v0.3.0)
+
+The shear v1 definition and historical correction above remain unchanged. Its earlier statement that it is the only calculation is superseded: a separate [educational round-shank axial-yield model](axial-yield-model-v1.md) is now defined for the browser app. It has a distinct report schema and history key; no combined-loading or connection check is implied, and the v1 shear report contract is unchanged.
