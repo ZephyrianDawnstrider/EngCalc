@@ -73,3 +73,12 @@ npm run dev
 ```
 
 Run the frontend tests and production build from the same directory with `npm run test`, `npm run test:browser`, and `npm run build`. The root `render.yaml` describes a manually controlled static site; adding it does not itself create or deploy a hosted service.
+
+
+## 4 October 2026 — browser workbench v0.2.0
+
+This section supersedes the browser app version 0.1.0 above; the v1 model and historical evidence remain unchanged. The [live workbench](https://engcalc-frontend.onrender.com/) now has a compact input/result layout, N/kN load entry, a demand/capacity display, immutable scenario comparison, and a separate SI unit converter. Reports remain local to the current browser, and exports include the original model evidence. Pin a result, change inputs and calculate, then compare the snapshots. The baseline lasts only for the open session.
+
+The [official-source competitive audit](docs/ux-competitive-audit-2026-10-04.md) compares workflows with Autodesk Inventor, Hilti PROFIS, IDEA StatiCa, and SkyCiv. EngCalc aims for a simpler transparent educational workflow; it does not claim their CAD integration, code-design coverage, or connection-verification capability. Bearing/tension/combined checks remain unavailable until individually sourced and verified.
+
+Run `npm run check` and `npm run build` from `frontend/`. See the dated [PWA acceptance record](docs/pwa-v1.md) for source, build, browser, and hosted gates; do not treat a passing build as browser acceptance.

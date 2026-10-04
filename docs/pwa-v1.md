@@ -23,3 +23,22 @@ Two isolated Playwright/Chrome browser checks passed: manifest/installability me
 The desktop/mobile screenshots and machine-readable browser receipts are retained in the local delivery output bundle, outside this repository. Hosted-service behavior is recorded separately after deployment.
 
 To run the Playwright checks, install `playwright==1.63.0` with `python -m pip install playwright==1.63.0` and use an installed Chrome browser. The checks do not download a browser binary.
+
+
+## 4 October 2026 — v0.2.0 workbench release (superseding app version)
+
+Browser app/cache version is now 0.2.0. Calculator model 1.0.0, report schema 1.0, history key/storage version, strict snapshot validation, 50-report limit, and the deferred-update behavior are unchanged. Historical v0.1.0 acceptance above applies only to that earlier release.
+
+The workbench adds N/kN load entry, clearer model-only results, pinned session comparison of complete report snapshots, a separate SI prefix converter, and a restrained available/planned module catalogue. JSON and print retain report identity and model evidence. The [competitive audit](ux-competitive-audit-2026-10-04.md) records source links, differences from specialist tools, and the next validated-module gate.
+
+### Source verification
+
+`npm run check`: TypeScript passed; **26 tests passed** across four files. These include existing Python/TypeScript model parity and storage-integrity tests, new unit equivalence/overflow/underflow checks, and React DOM journeys for calculate/pin/edit/compare/reopen, invalid input, preserved drafts across modules, print content, and immutable saved bytes. The DOM journeys run in jsdom; they do not prove real browser rendering.
+
+`npm run build`: production build and generated Workbox shell passed after removing an invalid CSS import. Cache namespace is `engcalc-shell-v0.2.0`, with no change to registration/update policy or runtime caching. No calculation-core or history-storage source changed.
+
+### Browser and hosted verification boundaries
+
+The Browser tool could not open either the live URL or local preview because its security check could not verify saved browser permissions. Its exact reason was: "Browser Use could not request permission." No alternate browser mechanism was used to bypass that control. Consequently, fresh desktop/mobile screenshots, visual acceptance, print-layout acceptance, true offline reload/installability, and waiting-worker runtime acceptance are **NOT PROVEN for v0.2.0**. The pre-existing browser test heading was updated to the new UI title, but its tests were not executed in this blocked session.
+
+Render deployment state and exact commit identity are recorded separately after integration. No physical phone installation is claimed.

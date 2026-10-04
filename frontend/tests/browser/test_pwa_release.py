@@ -104,7 +104,7 @@ def test_installable_desktop_mobile_offline_history_and_exports() -> None:
         page_errors: list[str] = []
         page.on("pageerror", lambda error: page_errors.append(str(error)))
         page.goto(BASE_URL, wait_until="networkidle")
-        assert page.get_by_role("heading", name="Estimate bolt-shank shear yield").is_visible()
+        assert page.get_by_role("heading", name="Bolt-shank shear yield", exact=True).is_visible()
         page.keyboard.press("Tab")
         assert page.evaluate("document.activeElement.matches('a,button,input,select')")
         wait_offline_ready(page)
