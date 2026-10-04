@@ -928,7 +928,116 @@ button.module-card:hover {
   font-size: 11px;
 }
 .converter {
-  max-width: 720px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: 22px;
+  align-items: start;
+}
+.converter > .card {
+  min-width: 0;
+}
+.converter .section-heading {
+  gap: 12px;
+  align-items: start;
+}
+.converter-count {
+  white-space: nowrap;
+  font-size: 11px;
+  color: var(--teal);
+  background: #e5f1ef;
+  padding: 7px 10px;
+  border-radius: 5px;
+}
+.converter-search {
+  margin-bottom: 20px;
+}
+.quantity-matches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: -8px 0 20px;
+}
+.quantity-matches button {
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  padding: 8px 10px;
+  background: #f3f8f8;
+  color: var(--teal);
+  cursor: pointer;
+}
+.converter-actions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-top: 15px;
+}
+.converter-actions span {
+  font-size: 11px;
+  color: var(--muted);
+}
+.conversion-rule {
+  padding: 10px;
+  background: #eff6f5;
+  border-radius: 5px;
+}
+.conversion-note {
+  font-size: 12px;
+  line-height: 1.6;
+  margin-bottom: 18px;
+}
+.conversion-equivalents dl {
+  margin: 0 0 16px;
+}
+.conversion-equivalents dl > div {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+  padding: 13px 8px;
+  border-bottom: 1px solid var(--line);
+  align-items: center;
+}
+.conversion-equivalents dt {
+  min-width: 0;
+}
+.conversion-equivalents dt button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--teal);
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.conversion-equivalents dt span {
+  display: block;
+  margin-top: 4px;
+  font-size: 10px;
+  color: var(--muted);
+}
+.conversion-equivalents dd {
+  margin: 0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+  font-size: 16px;
+}
+.selected-equivalent {
+  background: #eff6f5;
+}
+@media (max-width: 1150px) {
+  .converter {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 500px) {
+  .converter .section-heading {
+    flex-wrap: wrap;
+  }
+  .converter-count {
+    margin-bottom: 12px;
+  }
 }
 .converter h2 {
   font-size: 24px;

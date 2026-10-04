@@ -117,9 +117,9 @@ export default function App() {
     },
     units: {
       category: "02 / ENGINEERING ESSENTIALS",
-      title: "Get your units right.",
+      title: "Engineering unit conversions",
       description:
-        "Simple SI conversions, with every scale factor in plain sight.",
+        "Metric and imperial units across mechanics, fluids, thermal quantities and more.",
     },
     axial: {
       category: "03 / MEMBER MECHANICS",
@@ -359,7 +359,7 @@ export default function App() {
           >
             <span aria-hidden="true">⇄</span>
             <span>
-              Unit converter<small>Force · stress · length</small>
+              Unit converter<small>20 quantities · metric + imperial</small>
             </span>
             <span className="nav-arrow">↗</span>
           </button>
@@ -429,7 +429,7 @@ export default function App() {
             <span className="model-tag">
               {module !== "units"
                 ? "Educational model · v1.0.0"
-                : "SI prefix conversions"}
+                : "20 engineering quantities"}
             </span>
           </section>
           {installMessage && (
@@ -1081,9 +1081,10 @@ export default function App() {
                 }}
               >
                 <span className="module-status">Available</span>
-                <h3>SI units</h3>
+                <h3>Unit converter</h3>
                 <p>
-                  Convert force, stress, and length without leaving your work.
+                  20 quantities, metric and imperial units, temperature offsets
+                  and equivalent values.
                 </p>
                 <span>Open converter →</span>
               </button>

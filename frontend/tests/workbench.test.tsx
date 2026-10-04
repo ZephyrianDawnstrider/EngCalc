@@ -5,7 +5,7 @@ import App from "../src/App";
 import { HISTORY_STORAGE_KEY } from "../src/history";
 
 vi.mock("../src/pwa", () => ({
-  PWA_APP_VERSION: "0.2.0",
+  PWA_APP_VERSION: "0.4.0",
   subscribePwaState: () => () => {},
   requestInstall: vi.fn(),
   activateUpdateForNextNavigation: vi.fn(),
